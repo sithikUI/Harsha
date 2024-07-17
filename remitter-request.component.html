@@ -1,0 +1,354 @@
+<div class="row">
+  <div class="col-lg-12">
+    <div class="col-lg-6 offset-lg-3">
+
+      <div class="box">
+
+        <div class="box-body table-responsive overflow-xy p-0" id="horizontal-scroll-control">
+
+          <form [formGroup]="userForm" (ngSubmit)="getFilterUser()">
+
+            <table class="table table-bordered table-hover m-b-0" width="100%">
+              <tr>
+                <td style="width:30%; vertical-align:middle;">Payment Type</td>
+                <td style="width:70%">
+                  <select id="exampleFormControlSelect1" formControlName="remitterType" class="form-control ">
+                    <option value="" selected disabled>Select Payment Type</option>
+                    <option *ngFor="let obj of paymentTypedata" value="{{obj.id}}">
+                      {{obj?.remitterType}}
+                    </option>
+
+                  </select>
+                </td>
+              </tr>
+              <tr>
+                <td style="width:30%; vertical-align:middle;">Filter Type</td>
+                <td style="width:70%">
+                  <select id="exampleFormControlSelect1" (change)="onChange($event)" formControlName="filterType" class="form-control ">
+                    <option value="" selected disabled>Select Filter Type</option>
+                    <option *ngFor="let data of filterTypeData" value="{{data.id}}">
+                      {{data.name}}
+                    </option>
+
+                  </select>
+                </td>
+              </tr>
+              <tr>
+                <td style="width:30%; vertical-align:middle;">Filter Value</td>
+                <td style="width:70%">
+                  <select [disabled]="butDisabled" id="exampleFormControlSelect3" formControlName="filterValue" class="form-control">
+                    <option value=0 selected disabled>Select Filter Value</option>
+                    <option *ngFor="let data of filterValueData" value="{{data.id}}">
+                      {{data.merchantName}}
+                    </option>
+
+                  </select>
+                </td>
+
+              </tr>
+              <tr>
+                <td style="width:30%; vertical-align:middle;">Search Companies</td>
+                <td style="width:70%">
+                  <div class="input-group">
+                    <input type="text" id="freeTextSearch" formControlName="searchText" class="form-control" placeholder="Company Name, Email or Account #">
+                    <span class="input-group-addon"><a (click)="getFilterUser()"><i class="fa fa-search"></i></a></span>
+                  </div>
+
+                </td>
+              </tr>
+
+              <tr>
+
+                <td colspan="2" align="center">
+                  <button type="submit" class="btn btn-primary mr-1">Go</button>
+                  
+                  <button type="button" (click)="downloadReport()" class="btn btn-primary ml-1">Download</button>
+                </td>
+              </tr>
+            </table>
+          </form>
+
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <div class="col-lg-12">
+    <section *ngIf="remitterAccessData.isView==true" id="data-table">
+      <div class="box">
+        <div class="col-lg-5 col-xs-12">
+          <div class="box-header">
+            <h3 class="box-title">{{pageHeading}}</h3>
+          </div>
+        </div>
+        <div class="col-lg-6 col-xs-9 t-right pagination m-left" *ngIf="remitterList.length!=0">
+          <span class="mt-24 col-lg-5"> {{pageStart}} - {{pageEnd}}  of {{todayDataCount}}</span> <span class="col-lg-7  text-left m-left-25"><pagination-controls class="hide-page-numbers" [autoHide]="true" nextLabel="" previousLabel="" [responsive]="true" (pageChange)="changePage($event)"></pagination-controls></span>
+        </div>
+        <div class="col-lg-1 col-xs-3 text-right">
+          <form [formGroup]="paginationForm">
+            <div class="form-group">
+              <select formControlName="paginationValue" class="form-control" (change)="setPageNumber($event)" *ngIf="remitterList.length!=0">
+                <option *ngFor="let item of itemsPerPageContainer" [value]="item">{{item}}</option>
+              </select>
+            </div>
+          </form>
+        </div>
+
+
+
+       
+        
+
+        
+      <div class="box-body table-responsive" id="horizontal-scroll-control">
+        <div class="table-container">
+
+          <div class="scroll-wrapper" id="scroll-wrapper">
+            <div class="scroll-content">
+              <div class="dummy-scroll" id="dummy-scroll"></div>
+            </div>
+          </div>
+          <div class="table-wrapper" id="table-wrapper">
+            <table class="table table-bordered table-hover" width="100%" id="sortTable">
+              <thead>
+                <tr>
+                  <th>Account # </th>
+                  <th>Email Id # </th>
+                  <th>Company Name </th>
+                  <th>Date Submitted </th>
+                  <th>Payments Type </th>
+                  <th>USD Remittance </th>
+                  <th>USD Remitter Transfer Bank </th>
+                  <th>Bene Transfer Bank </th>
+                  <th>Checkbook Remitter </th>
+                  <th>Corpay Remitter </th>
+                  <th>Advanced Profile (USA Only)</th>
+                  <th>Advanced Profile (International)</th>
+                </tr>
+              </thead>
+              <tbody *ngIf="remitterList?.length==0">
+                <tr>
+                  <td colspan="10" align="center">
+                    No records found!
+                  </td>
+                </tr>
+              </tbody>
+              <tbody>
+                <tr *ngFor="let user of remitterList | orderBy: {property: column, direction: direction} | paginate: { itemsPerPage: itemsPerPage, currentPage: currentPage, totalItems: todayDataCount }">
+                  <td class="text-center">{{user?.accountNo}}</td>
+                  <td class="text-center">{{user?.emailID}}</td>
+                  <td class="text-center word-wrap">{{user?.companyName}}</td>
+                  <td class="text-center">{{user?.submittedDate|date :"dd MMM yyyy"}}</td>
+                  <td class="text-center">{{user?.paymentsType}} <a (click)="editRemitterType(user.accountNo,user.paymentsTypeID,remitterAccessData.isUpdate)" class="pointer"><i class="fa fa-pencil-square-o text-red f-right" aria-hidden="true"></i></a></td>
+                  <td class="text-center">{{user.usdRemittance}} <a (click)="editUsdRemittance(user.accountNo,user.usdRemittanceID,remitterAccessData.isUpdate)" class="pointer"><i class="fa fa-pencil-square-o text-red f-right" aria-hidden="true"></i></a></td>
+                  <td class="text-center">{{user?.usdRemitterTransferBankProcessor}}<a (click)="editUsdTransferBank(user.accountNo,user.usdRemitterTransferBankProcessorID,remitterAccessData.isUpdate)" class="pointer"><i class="fa fa-pencil-square-o text-red f-right" aria-hidden="true"></i></a></td>
+                  <td class="text-center">{{user?.beneficiaryTransferBankProcessor}}<a (click)="editBeneBank(user.accountNo,user?.beneficiaryTransferBankProcessorID ,remitterAccessData.isUpdate)" class="pointer"><i class="fa fa-pencil-square-o text-red f-right" aria-hidden="true"></i></a></td>
+                  <td class="text-center"><span *ngIf="user?.checkbookRemitterStatus=='C'"> <a class="pointer" (click)="goToLink('/admin/company/settings/create-checkbook-remitter/',user?.accountNo,user?.checkbookRemitterStatus,user?.companyName,checkBookAccess.isInsert)">Create</a></span> <span *ngIf="user?.checkbookRemitterStatus=='A'">(Approved){{user.checkbookCreatedDate|date :"dd MMM yyyy"}}</span></td>
+                  <td class="text-center">
+                    <span *ngIf="user?.corpayRemitterStatus=='C'">
+                      <a class="pointer" (click)="goToLink2('/admin/company/settings/create-corpay-remitter/',user?.accountNo,corpayAccess.isInsert,'create')">
+                        Create
+                      </a>
+                    </span> <span *ngIf="user?.corpayRemitterStatus=='A'">(Approved){{user.corpayCreatedDate|date :"dd MMM yyyy"}}</span> <span *ngIf="user?.corpayRemitterStatus=='P'">(Pending){{user.corpayCreatedDate|date :"dd MMM yyyy"}}</span>
+                    <span *ngIf="user?.corpayRemitterStatus=='P'" (click)="goToLink3('/admin/company/settings/update-corpay-remitter/',user?.accountNo,user?.companyName,corpayAccess.isUpdate)" align="left"><a class="pointer">Update/</a></span>
+                    <span *ngIf="user?.corpayRemitterStatus=='P'" (click)="goToLink2('/admin/company/settings/create-corpay-remitter/',user?.accountNo,corpayAccess.isUpdate,'recreate')" align="left"><a class="pointer">Recreate</a></span>
+                  </td>
+                  <td class="text-center">
+                    <div appCheckRoleAccess [access]="checkBookAccess.isView">
+                      <a class="pointer" [routerLink]="goToLink1('/admin/company/settings/checkbook-remitter/',user?.accountNo)">
+                        <i class="fa fa-eye text-blue" aria-hidden="true"></i> View
+
+                      </a>
+                    </div>
+
+
+                  </td>
+                  <td class="text-center">
+                    <div appCheckRoleAccess [access]="corpayAccess.isView">
+                      <a class="pointer" [routerLink]="goToLink1('/admin/company/settings/corpay-remitter/',user?.accountNo)">
+                        <i class="fa fa-eye text-blue" aria-hidden="true"></i> View
+
+                      </a>
+
+                    </div>
+
+
+
+                  </td>
+
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          </div>
+        </div>
+        <div class="box f-left">
+          <div class="col-lg-5 col-xs-12">
+            <div class="box-header">
+
+            </div>
+          </div>
+          <div class="col-lg-6 col-xs-9 t-right pagination m-left" *ngIf="remitterList.length!=0">
+            <span class="mt-24 col-lg-5"> {{pageStart}} - {{pageEnd}}  of {{todayDataCount}}</span> <span class="col-lg-7  text-left m-left-25"><pagination-controls class="hide-page-numbers" [autoHide]="true" nextLabel="" previousLabel="" [responsive]="true" (pageChange)="changePage($event)"></pagination-controls></span>
+          </div>
+          <div class="col-lg-1 col-xs-3 text-right">
+            <form [formGroup]="paginationForm">
+              <div class="form-group">
+                <select formControlName="paginationValue" class="form-control" (change)="setPageNumber($event)" *ngIf="remitterList.length!=0">
+                  <option *ngFor="let item of itemsPerPageContainer" [value]="item">{{item}}</option>
+                </select>
+              </div>
+            </form>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+  </div>
+</div>
+
+
+
+  <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title" id="exampleModalLabel">Edit Remitter type</h4>
+          <button type="button" class="close" data-dismiss="modal" (click)="hideUpdateRemiterForm()" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form [formGroup]="remitterTypeUpdateForm">
+            <table class="table table-bordered table-hover table-responsive" width="100%">
+              <div>
+                <select id="exampleFormControlSelect1" formControlName="remitterTypeID" class="form-control " [class.error-message]="submitted && f.remitterTypeID.errors">
+                  <option value="" selected disabled>Select Payment Type</option>
+                  <option *ngFor="let obj of paymentTypedata" value="{{obj.id}}">
+                    {{obj?.remitterType}}
+                  </option>
+
+                </select>
+              </div>
+            </table>
+          </form>
+        </div>
+        <div class="modal-footer text-center col-lg-12 d-block">
+
+          <button class="btn btn-secondary mr-1" type="button" (click)="hideUpdateRemiterForm()">Cancel</button>
+          <button class="btn btn-primary ml-1" type="button" (click)="updateRemitterType()">Update</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+
+
+  <div class="modal fade" id="exampleModal1" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title" id="exampleModalLabel">Edit USD  Remittance</h4>
+          <button type="button" class="close" data-dismiss="modal" (click)="hideUSDresistance()" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form [formGroup]="usdRemittanceForm">
+            <table class="table table-bordered table-hover table-responsive" width="100%">
+              <div>
+                <select id="exampleFormControlSelect1" formControlName="merchantBankID" class="form-control " [class.error-message]="submitted && u.merchantBankID.errors">
+                  <option value="" selected disabled>Select Filter Value</option>
+                  <option *ngFor="let data of filterValueData" value="{{data.id}}">
+                    {{data.merchantName}}
+                  </option>
+
+                </select>
+              </div>
+            </table>
+          </form>
+        </div>
+        <div class="modal-footer text-center col-lg-12 d-block">
+
+          <button class="btn btn-secondary mr-1" type="button" (click)="hideUSDresistance()">Cancel</button>
+          <button class="btn btn-primary ml-1" type="button" (click)="updateUsdRemittance()">Update</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="modal fade" id="exampleModal2" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title" id="exampleModalLabel">Edit UDS Remitter Transfer Bank</h4>
+          <button type="button" class="close" data-dismiss="modal" (click)="hideUSdTransferBank()" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form [formGroup]="usdTransferBankForm">
+            <table class="table table-bordered table-hover table-responsive" width="100%">
+              <div>
+                <select id="exampleFormControlSelect1" formControlName="merchantBankID" class="form-control " [class.error-message]="submitted && u.merchantBankID.errors">
+                  <option value="" selected disabled>Select Filter Value</option>
+                  <option *ngFor="let data of filterValueData" value="{{data.id}}">
+                    {{data.merchantName}}
+                  </option>
+
+                </select>
+              </div>
+            </table>
+          </form>
+        </div>
+        <div class="modal-footer text-center col-lg-12 d-block">
+
+          <button class="btn btn-secondary mr-1" type="button" (click)="hideUSdTransferBank()">Cancel</button>
+          <button class="btn btn-primary ml-1" type="button" (click)="updateUsdTransferBank()">Update</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+  <div class="modal fade" id="exampleModal3" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title" id="exampleModalLabel">Edit Bene Transfer Bank </h4>
+          <button type="button" class="close" data-dismiss="modal" (click)="hidebeneTransfer()" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form [formGroup]="beneTransferUpdateForm">
+            <table class="table table-bordered table-hover table-responsive" width="100%">
+              <div>
+                <select id="exampleFormControlSelect1" formControlName="merchantBankID" class="form-control " [class.error-message]="submitted && k.merchantBankID.errors">
+                  <option value="" selected disabled>Select Filter Value</option>
+                  <option *ngFor="let data of filterValueData" value="{{data.id}}">
+                    {{data.merchantName}}
+                  </option>
+
+                </select>
+              </div>
+            </table>
+          </form>
+        </div>
+        <div class="modal-footer text-center col-lg-12 d-block">
+
+          <button class="btn btn-secondary mr-1" type="button" (click)="hidebeneTransfer()">Cancel</button>
+
+          <button class="btn btn-primary ml-1" type="button" (click)="updateBeneTransfer()">Update</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+

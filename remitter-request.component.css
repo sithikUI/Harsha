@@ -1,0 +1,36 @@
+.table-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.scroll-wrapper {
+  position: sticky;
+  top: 0;
+  background: white;
+  z-index: 10;
+}
+
+.scroll-content {
+  height: 20px; /* Adjust this*/
+  overflow-x: scroll;
+}
+
+.dummy-scroll {
+  width: 2000px; /* Adjust this */
+  height: 1px;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+table {
+  width: 2000px; /* Adjust this */
+  overflow: auto;
+}
+
+thead {
+  position: sticky;
+  top: 20px; /* Adjust this */
+  z-index: 1;
+}
